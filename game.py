@@ -1,3 +1,9 @@
+# Program Name: Gun Mayhem
+# Authors: Jacky Zhang, Dasha Yefymenko, Michael Tandazo
+# Date: 13 June 2021
+# Description: This Object Oriented Program generates a 2-player arcade shooting game with realistic physics 
+#              that allows the users to choose their characters and keep track of the score. 
+
 import pygame  # uses Pygame
 import pygame.freetype
 import settings  
@@ -14,14 +20,14 @@ class Game:
 
     def __init__(self, player_1_name="Player 1", player_2_name="Player 2", player_1_color="green", player_2_color="red"):
         """Initializes pygame."""
-        pygame.init()
-        pygame.mixer.init()
-        self.load_and_set_icon()
+        pygame.init()  #initializes all imported modules
+        pygame.mixer.init() #initializes the mixer module that allows to play sounds
+        self.load_and_set_icon() #calls a method that creates an icon for the game file that the user will see before opening the file
         self.screen = pygame.display.set_mode(
-            (settings.WIDTH, settings.HEIGHT))
-        pygame.display.set_caption(settings.TITLE)
-        self.clock = pygame.time.Clock()
-        self.running = True
+            (settings.WIDTH, settings.HEIGHT)) #creates a screen of the given height and width 
+        pygame.display.set_caption(settings.TITLE) #sets the title of the game window to 'Gun Mayhem'
+        self.clock = pygame.time.Clock() #uses a clock to determine how often the program collects events data in order to prevent the game from overusing the computer's resources
+        self.running = True #a condition that will keep the program running
 
         # set player names and colors
         self.player_1_name = player_1_name
@@ -31,68 +37,75 @@ class Game:
 
     def new(self):
         """Starts a new Gun Meyham game."""
+        #sprite.Group() is a class that holds and manages multiple sprite objects (moving objects) in the game
+        #it also allows for easier collision detection and updating of sprites' positions
         self.players = pygame.sprite.Group()
         self.platforms = pygame.sprite.Group()
         self.bullets = pygame.sprite.Group()
         self.all_sprites = pygame.sprite.Group()
 
-        self.load_images()
-        self.load_sfx()
-        self.load_font()
-        self.add_platforms()
-        self.add_players()
-        self.add_scoreboards()
+        self.load_images() #calls a method that loads images of platforms, bullets, background, and muzzle flashes
+        self.load_font() #calls a method that will allow the game to use Open Sans Regular font
+        self.add_platforms() #calls a method that prints the platforms onto the screen
+        self.add_players() #calls a method that prints both players onto the screen 
+        self.add_scoreboards() #calls a method that prints scoreboards onto the screen
         self.run()
 
-    def load_sfx(self):
+    def load_sfx(self): 
         """Loads sound files from disk and populates a dictionary object with them."""
         # uses files
         Sound = pygame.mixer.Sound
-        self.sfx = {}
-
+        self.sfx = {} #a dictionary object that will store sounds 
+        
+        # shooting sound; volume 0.4
         sound = Sound("assets/sfx/shooting/plasma_rife_fire.wav")
-        sound.set_volume(0.4)
+        sound.set_volume(0.4) 
         self.sfx.update({"shoot": sound})
 
+        # sound of a bullet hitting a player; volume 0.6
         sound = Sound("assets/sfx/player/hit.wav")
         sound.set_volume(0.6)
         self.sfx.update({"hit": sound})
 
+        # background sound; volume 0.3
         sound = Sound("assets/sfx/ambience/ambience_spacecraft_loop.wav")
         sound.set_volume(0.3)
         self.sfx.update({"ambience": sound})
 
+        # sound of jumping; volume 0.8
         sound = Sound("assets/sfx/movement/jump.wav")
         sound.set_volume(0.8)
         self.sfx.update({"jump": sound})
 
+        # sound of stepping; volume 0.4
         sound = Sound("assets/sfx/movement/step.wav")
         sound.set_volume(0.4)
         self.sfx.update({"step": sound})
 
+        # sound of player death; volume 0.5
         sound = Sound("assets/sfx/player/death.wav")
         sound.set_volume(0.5)
         self.sfx.update({"death": sound})
 
-    def sfx_shoot(self):
+    def sfx_shoot(self): #plays the sound of shooting
         sound = self.sfx.get("shoot")
         sound.play()
 
-    def sfx_hit(self):
+    def sfx_hit(self): #plays the sound of hitting
         sound = self.sfx.get("hit")
         sound.play()
 
-    def loop_ambience(self):
+    def loop_ambience(self): #plays the background sound
         sound = self.sfx.get("ambience")
         sound.play(loops=-1)
 
     def load_and_set_icon(self):
         """Loads surface from image file from disk and sets it as the game icon."""
         icon = pygame.image.load("assets/icon/icon.png")
-        pygame.display.set_icon(icon)
+        pygame.display.set_icon(icon) #uses a pygame display.set_icon() method to set the game's icon to the given image
 
     def load_font(self):
-        """Loads font from file and sets it to self.font"""
+        """Loads Open Sans Regular font from file and sets it to self.font"""
         self.font = pygame.freetype.Font(
             "assets/font/OpenSans-Regular.ttf", 16)
 
@@ -117,13 +130,13 @@ class Game:
 
     def add_platforms(self):
         """Creates and adds platforms to self.platforms and self.all_sprites."""
-        for platform_attributes in settings.PLATFORM_LIST:
-            coordinates, tile_count = platform_attributes
+        for platform_attributes in settings.PLATFORM_LIST: #setting.PLATFORM_LIST is a list of elements ((x,y),num) where x,y are coordinates of the platform, and num is its length
+            coordinates, tile_count = platform_attributes #sets coordinates and tile_count to corresponding parts of the list elements
             platform = sprites.Platform(
                 self.platform_image,
                 coordinates,
                 tile_count
-            )
+            ) #creates platform, an object of class Platform
             self.platforms.add(platform)
             self.all_sprites.add(platform)
 
@@ -186,7 +199,7 @@ class Game:
         player_2_animations = self.get_player_animations(
             self.player_2_color)
 
-        self.player_1 = sprites.Player(
+        self.player_1 = sprites.Player( #creates object player_1 of class Player
             name=self.player_1_name,
             controls=controls.PLAYER_1_CONTROLS,
             spawn_point=settings.PLAYER_1_SPAWN_POINT,
@@ -196,7 +209,7 @@ class Game:
             sfx=self.sfx
         )
 
-        self.player_2 = sprites.Player(
+        self.player_2 = sprites.Player( #creates object player_2 of class Player
             name=self.player_2_name,
             controls=controls.PLAYER_2_CONTROLS,
             spawn_point=settings.PLAYER_2_SPAWN_POINT,
@@ -206,6 +219,7 @@ class Game:
             sfx=self.sfx
         )
 
+        #adds both players to the list of players and the total list of sprites in the game
         self.players.add(self.player_1)
         self.all_sprites.add(self.player_1)
         self.players.add(self.player_2)
@@ -216,23 +230,23 @@ class Game:
         self.loop_ambience()
         self.playing = True
         while self.playing:
-            self.clock.tick(settings.FPS)
-            self.handle_events()
+            self.clock.tick(settings.FPS) #regulates the usage of CPU
+            self.handle_events() #calls a method that responds to the user closing the game or choosing to shoot
             self.update()
             self.render()
 
     def handle_events(self):
         """Handles pygame events."""
         for event in pygame.event.get():
-            if event.type == pygame.QUIT:
+            if event.type == pygame.QUIT: #if the user presses the exit button the game will stop
                 self.playing = False
                 self.running = False
-            elif event.type == pygame.KEYDOWN:
+            elif event.type == pygame.KEYDOWN: #if a key on the keyboard has been pressed
                 if event.key == pygame.K_ESCAPE:
                     self.playing = False # restart game
                 else:
                     for player in self.players:
-                        if event.key == player.controls.SHOOT:
+                        if event.key == player.controls.SHOOT: #if '0' has been pressed for Player 1 or 'h' for Player 2, the game calls fire_bullet method
                             self.fire_bullet(player)
 
     def fire_bullet(self, player: sprites.Player) -> None:
@@ -244,9 +258,9 @@ class Game:
         """
 
         player.shooting = True
-        self.add_bullet(player)
-        self.sfx_shoot()
-        self.add_recoil(player)
+        self.add_bullet(player) #calls a method that shoots a bullet
+        self.sfx_shoot() #plays the sound of a shooting
+        self.add_recoil(player) #calls a method that generates recoil
 
     def add_recoil(self, player: sprites.Player) -> None:
         """
@@ -257,9 +271,9 @@ class Game:
         """
 
         if player.direction == "left":
-            player.vel.x += settings.GUN_RECOIL
+            player.vel.x += settings.GUN_RECOIL #if the player was moving left, recoil will push them to the right
         else:
-            player.vel.x += -settings.GUN_RECOIL
+            player.vel.x += -settings.GUN_RECOIL #if the player was moving right, recoil will push them to the left
 
     def load_images(self):
         """Loads necessary images from file, converts them to surfaces, and stores them in appropriate variables."""
@@ -279,7 +293,7 @@ class Game:
         Parameters:
         player (sprites.Player): the player that shot the bullet.
         """
-        x_vel = settings.BULLET_SPEED + player.vel.x
+        x_vel = settings.BULLET_SPEED + player.vel.x #calculates the velocity of the bullet by adding the set bullet speed (16 pixels per tick) and the current velocity of the player
         if player.direction == "left":
             x_vel = -settings.BULLET_SPEED + player.vel.x
         bullet = sprites.Bullet(player.pos, x_vel, self.bullet_image, player)
@@ -330,11 +344,11 @@ class Game:
 
 
 def main():
-    game = Game()
-    while game.running:
+    game = Game() #creates a game object of class Game
+    while game.running:  #the game continues running until the user chooses to quit
         game.new()
     game.quit()
 
 
-if __name__ == "__main__":
+if __name__ == "__main__": #driver code, Python convention
     main()
